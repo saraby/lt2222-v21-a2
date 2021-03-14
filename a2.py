@@ -31,8 +31,6 @@ def preprocess(inputfile):
     tags = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
     columns_names = ["Line_No", "Sentence_No", "Word", "POS", "NER"]
     text_list = []
-    # freq_words=[]
-    # chosen_words=[]
 
     for row in inputfile.readlines()[1:]:
         row_items = row.rstrip().split("\t")
@@ -45,16 +43,10 @@ def preprocess(inputfile):
                 row_items[2] = wn._morphy(row_items[2].lower(), pos='v')
                 verb = str(row_items[2]).strip("['").strip("']")
                 row_items[2] = verb
-            # freq_words.append(row_items[2])
             text_list.append(row_items)
-    # most_freq = Counter(freq_words).most_common()
-    # chosen_words = [i for (i,j) in most_freq if j > 1]
-    # # print(chosen_words[4:10])
-    # for row in text_list:
-    #     if row[2] not in chosen_words:
-    #         text_list.pop(text_list.index(row))
+    
     fd = pd.DataFrame(text_list, columns=columns_names)
-    # fd.set_index("Line_No")
+
     return fd
 
 # Code for part 2
@@ -94,8 +86,7 @@ def create_instances(data):
             neclass = sent[4][2:]
             for n in range(1, 6):
                 pre_row = data_list[index-n]
-                embedded_word = embedd(
-                    sent[1], pre_row[1], pre_row[4], pre_row[2], start_tokens)
+                embedded_word = embedd(sent[1], pre_row[1], pre_row[4], pre_row[2], start_tokens)
                 pre_features.insert(0, embedded_word)
 
             skipped = 1
@@ -104,8 +95,7 @@ def create_instances(data):
             for m in range(1, 6):
                 if (len(data_list)-index) >= 5:
                     post_row = data_list[index+skipped+m-1]
-                    embedded_word = embedd(
-                        sent[1], post_row[1], post_row[4], post_row[2], end_tokens)
+                    embedded_word = embedd(sent[1], post_row[1], post_row[4], post_row[2], end_tokens)
                     post_features.append(embedded_word)
 
             features = pre_features + post_features
@@ -134,10 +124,10 @@ def create_table(instances):
             for instance in instances for feature in instance.features]
 
     df = pd.DataFrame(rows, columns=cols)
-    reducted_df = reduce(df.drop('Class', 1))
-    reducted_df.insert(0, "Class", df["Class"])
+    reduced_df = reduce(df.drop('Class', 1))
+    reduced_df.insert(0, "Class", df["Class"])
 
-    return reducted_df
+    return reduced_df
 
 
 def reduce(matrix, dims=300):
